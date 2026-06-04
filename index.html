@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+[04.06.2026 14:43] 𝕯𝖆𝖘𝖍𝖆: <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -8,7 +8,7 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #181818;
+            background-color: #181818;
             color: #ffffff;
             display: flex;
             flex-direction: column;
@@ -27,135 +27,139 @@
         }
         .wheel-container {
             position: relative;
-            width: 290px;
-            height: 290px;
-        }
-        .arrow {
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-top: 25px solid #ff7597;
-            z-index: 10;
+            width: 300px;
+            height: 300px;
+            margin-bottom: 40px;
         }
         canvas {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            box-shadow: 0 0 25px rgba(255, 117, 151, 0.4);
-            transition: transform 4s cubic-bezier(0.1, 0.8, 0.2, 1);
+            box-shadow: 0 0 20px rgba(255, 117, 151, 0.3);
         }
-        .spin-btn {
-            margin-top: 35px;
-            background: linear-gradient(135deg, #ff7597 0%, #ff527b 100%);
+        .arrow {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid #ff7597;
+            z-index: 10;
+        }
+        button {
+            background: #ff7597;
             color: white;
             border: none;
-            padding: 14px 40px;
+            padding: 15px 40px;
             font-size: 1.1rem;
             font-weight: bold;
             border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 5px 20px rgba(255, 117, 151, 0.4);
-            transition: 0.2s;
+            box-shadow: 0 4px 15px rgba(255, 117, 151, 0.4);
+            transition: transform 0.1s, background 0.2s;
         }
-        .spin-btn:active {
+        button:active {
             transform: scale(0.95);
-        }
-        .spin-btn:disabled {
-            background: #444;
-            color: #888;
-            box-shadow: none;
-            cursor: not-allowed;
+            background: #e05376;
         }
     </style>
 </head>
 <body>
 
     <h1>Чем займемся сегодня? ❤️</h1>
-    
+
     <div class="wheel-container">
         <div class="arrow"></div>
-        <canvas id="wheel" width="300" height="300"></canvas>
+        <canvas id="wheel" width="600" height="600"></canvas>
     </div>
 
-    <button class="spin-btn" id="spinBtn" onclick="spinWheel()">Крутить колесо!</button>
+    <button id="spinBtn">Крутить колесо!</button>
 
     <script>
         const tg = window.Telegram.WebApp;
+        tg.ready();
         tg.expand();
 
-        const activities = [
-            "Катка в кооп 🎮",
-            "Киномарафон 🍿",
-            "Готовим ужин вместе 🌮",
-            "Вечер коктейлей 🍹",
-            "Долгая прогулка 🌌",
-            "Пицца + Обнимашки 🍕",
-            "Массаж любимому 💆‍♂️",
-            "Настольные игры 🧩"
-        ];
+        const canvas = document.getElementById('wheel');
+        const ctx = canvas.getContext('2d');
+        const spinBtn = document.getElementById('spinBtn');
 
-        const colors = ["#ff7597", "#3fcdbf", "#ffca3a", "#96bb7c", "#1dd3b0", "#b5179e", "#7209b7", "#4361ee"];
-        const canvas = document.getElementById("wheel");
-        const ctx = canvas.getContext("2d");
-        const size = canvas.width;
-        const center = size / 2;
-        const sliceAngle = (2 * Math.PI) / activities.length;
-        let currentRotation = 0;
+        const options = [
+            "Приготовить ужин вместе", 
+            "Посмотреть фильм", 
+            "Массаж", 
+            "Прогулка в парке", 
+            "Заказать пиццу", 
+            "Настольные игры"
+        ];
+        
+        const colors = ["#ff7597", "#3498db", "#2ecc71", "#f1c40f", "#9b59b6", "#e67e22"];
+        
+        const numSectors = options.length;
+        const arc = 2 * Math.PI / numSectors;
+        let startAngle = 0;
         let isSpinning = false;
 
+        // Рисуем колесо
         function drawWheel() {
-            activities.forEach((activity, i) => {
-                const angle = i * sliceAngle;
-                ctx.beginPath();
+            ctx.clearRect(0, 0, 600, 600);
+            for (let i = 0; i < numSectors; i++) {
+                const angle = startAngle + i * arc;
                 ctx.fillStyle = colors[i % colors.length];
-                ctx.moveTo(center, center);
-                ctx.arc(center, center, center, angle, angle + sliceAngle);
-                ctx.lineTo(center, center);
+                
+                ctx.beginPath();
+                ctx.moveTo(300, 300);
+                ctx.arc(300, 300, 290, angle, angle + arc);
+                ctx.lineTo(300, 300);
                 ctx.fill();
+                ctx.strokeStyle = '#181818';
+                ctx.lineWidth = 4;
+                ctx.stroke();
 
+                // Текст на секторах
                 ctx.save();
-                ctx.translate(center, center);
-                ctx.rotate(angle + sliceAngle / 2);
-                ctx.fillStyle = "#fff";
-                ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
-                ctx.textAlign = "right";
-                ctx.
-[04.06.2026 14:00] 𝕯𝖆𝖘𝖍𝖆: fillText(activity, center - 15, 5);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 20px sans-serif';
+                ctx.textBaseline = 'middle';
+                ctx.translate(300, 300);
+                ctx.rotate(angle + arc / 2);
+                ctx.fillText(options[i], 80, 0);
                 ctx.restore();
-            });
-        }
-
-        function spinWheel() {
-            if (isSpinning) return;
-            isSpinning = true;
-            document.getElementById("spinBtn").disabled = true;
-
-            const spins = 6 + Math.floor(Math.random() * 4);
-            const randomAngle = Math.random() * 2 * Math.PI;
-            currentRotation += spins * 2 * Math.PI + randomAngle;
-
-            canvas.style.transform = rotate(${currentRotation}rad);
-
-            setTimeout(() => {
-                isSpinning = false;
-                document.getElementById("spinBtn").disabled = false;
-
-                const normalizedAngle = (2 * Math.PI - (currentRotation % (2 * Math.PI))) % (2 * Math.PI);
-                const winningIndex = Math.floor(((normalizedAngle + Math.PI / 2) % (2 * Math.PI)) / sliceAngle);
-                
-                const result = activities[winningIndex];
-                
-                tg.sendData(result);
-                setTimeout(() => tg.close(), 800);
-            }, 4000);
+            }
         }
 
         drawWheel();
+
+        // Логика вращения
+        spinBtn.
+[04.06.2026 14:43] 𝕯𝖆𝖘𝖍𝖆: addEventListener('click', () => {
+            if (isSpinning) return;
+            isSpinning = true;
+
+            const spinAngle = Math.random() * 2000 + 2000; // Случайная скорость и длительность
+            let currentRotation = 0;
+            
+            const interval = setInterval(() => {
+                startAngle += 0.1;
+                currentRotation += 5;
+                drawWheel();
+                
+                if (currentRotation >= spinAngle) {
+                    clearInterval(interval);
+                    isSpinning = false;
+                    
+                    // Вычисляем победителя
+                    const degrees = (startAngle * 180 / Math.PI) % 360;
+                    const index = Math.floor((360 - degrees) / (360 / numSectors)) % numSectors;
+                    
+                    // Показываем результат пользователю
+                    alert("Сегодня мы делаем: " + options[index]);
+                }
+            }, 10);
+        });
     </script>
 </body>
 </html>
