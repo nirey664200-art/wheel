@@ -10,7 +10,6 @@
             font-family: 'Arial Black', sans-serif;
             background-color: #1a1a1a;
             margin: 0;
-            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -26,7 +25,19 @@
             height: 350px;
             margin-bottom: 30px;
         }
-        /* 20 секторов (по 18 градусов каждый) */
+        /* Стрелка выбора сверху */
+        .arrow {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid #d4af37;
+            z-index: 10;
+        }
         .wheel {
             width: 100%;
             height: 100%;
@@ -80,24 +91,24 @@
 </head>
 <body>
     <div class="wheel-container">
-        <div class="wheel" id="wheelCircle"></div>
+        <div class="arrow"></div> <div class="wheel" id="wheelCircle"></div>
         <div class="wheel-center">
-            <div class="wheel-text" id="centerText">Ваш выбор? 🎰</div>
+            <div class="wheel-text" id="centerText">Крутим! 🎰</div>
         </div>
     </div>
     <button class="stop-btn" id="actionButton">ОСТАНОВИТЬ 🛑</button>
 
-    <script>
+     <script>
         if (window.Telegram && window.Telegram.WebApp) { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); }
         const wheel = document.getElementById('wheelCircle');
         const centerText = document.getElementById('centerText');
         const actionButton = document.getElementById('actionButton');
-        const options = ["Ужин 🍳", "Фильм 🍿", "Массаж 💆‍♂️", "Парк 🌳", "Пицца 🍕", "Игры 🎲", "Суши 🍣", "Спа 🧖‍♀️", "Коктейли 🍹", "Рисование 🎨"];
+        const options = ["Готовим вместе ужин 🍳", "Смотрим Фильм 🍿", "Массаж 💆‍♂️", "Идём гулять в парк 🌳", " Кушаем пиццу 🍕", "Игры 🎲", "Заказываем суши 🍣", "Спа вечер 🧖‍♀️", "Делаем коктейли 🍹", "Смотрим Аниме"];
         let isStopped = false;
         function handleAction() {
             if (isStopped) {
                 wheel.classList.remove('stop');
-                centerText.innerHTML = "Ваш выбор? 🎰";
+                centerText.innerHTML = "Крутим! 🎰";
                 actionButton.innerHTML = "ОСТАНОВИТЬ 🛑";
                 isStopped = false;
             } else {
