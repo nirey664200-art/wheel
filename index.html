@@ -16,16 +16,12 @@
             justify-content: center;
             height: 100vh;
             overflow: hidden;
-            -webkit-user-select: none;
-            user-select: none;
         }
         .wheel-container {
             position: relative;
             width: 320px;
             height: 320px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            cursor: pointer;
         }
         .wheel {
             width: 100%;
@@ -40,10 +36,13 @@
                 #e67e22 300deg 360deg
             );
             box-shadow: 0 0 25px rgba(255, 117, 151, 0.4);
-            transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1);
+            /* Упрощенная плавная анимация */
+            transition: transform 3s ease-out;
         }
         .wheel-center {
             position: absolute;
+            top: 90px;
+            left: 90px;
             width: 140px;
             height: 140px;
             background: #ffffff;
@@ -66,7 +65,7 @@
 </head>
 <body>
 
-    <div class="wheel-container" id="mainContainer">
+    <div class="wheel-container" id="spinArea">
         <div class="wheel" id="wheelCircle"></div>
         <div class="wheel-center">
             <div class="wheel-text" id="centerText">Жми, чтобы<br>крутить! ❤️</div>
@@ -74,16 +73,15 @@
     </div>
 
     <script>
-        // Инициализация Telegram WebApp
-        const tg = window.Telegram.WebApp;
-        if (tg) {
-            tg.ready();
-            tg.expand();
+        // Инициализируем Telegram WebApp, если он есть
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
         }
 
         const wheel = document.getElementById('wheelCircle');
         const centerText = document.getElementById('centerText');
-        const container = document.getElementById('mainContainer');
+        const spinArea = document.getElementById('spinArea');
 
         const options = [
             "Приготовить ужин вместе", 
@@ -94,38 +92,35 @@
             "Настольные игры"
         ];
 
-        let currentRotation = 0;
-        let isSpinning = false;
+        let degrees = 0;
+        let canSpin = true;
 
-        // Главная функция вращения
-        function startSpin() {
-            if (isSpinning) return;
-            isSpinning = true;
+        function doRotation() {
+            if (!canSpin) return;
+            canSpin = false;
 
             centerText.innerHTML = "Крутится...";
 
-            const randomDegrees = Math.floor(Math.random() * 360);
-            currentRotation += 1800 + randomDegrees;
+            // Просто прибавляем случайные градусы (минимум 3 полных оборота)
+            const extraDegrees = Math.floor(Math.random() * 360) + 1080;
+            degrees += extraDegrees;
             
-            wheel.style.transform = rotate(${currentRotation}deg);
+            // Вращаем колесо через CSS
+            wheel.style.transform = rotate(${degrees}deg);
 
+            // Через 3 секунды (когда анимация закончится) показываем случайный текст
             setTimeout(() => {
-                isSpinning = false;
-                
-                const actualDegrees = currentRotation % 360;
-                const sectorDegrees = 360 / options.length;
-                const index = Math.floor(((360 - actualDegrees + 270) % 360) / sectorDegrees) % options.length;
-                
-                centerText.innerHTML = options[index];
-            }, 4000);
+                const randomIndex = Math.floor(Math.random() * options.length);
+                centerText.innerHTML = options[randomIndex];
+                canSpin = true;
+            }, 3000);
         }
 
-         // Слушаем и обычные клики, и мобильные касания тачскрина для 100% срабатывания
-        container.addEventListener('click', startSpin);
-        container.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Защита от двойных тапов на iPhone
-            startSpin();
-        }, { passive: false });
+        // Привязываем запуск ко всем возможным видам нажатий
+        spinArea.onclick = doRotation;
+        spinArea.ontouchstart = function(e) {
+            doRotation();
+        };
     </script>
 </body>
 </html>
