@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Колесо Свиданий</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -21,8 +20,8 @@
             position: relative;
             width: 320px;
             height: 320px;
-            cursor: pointer;
         }
+        /* Колесо крутится само бесконечно и плавно */
         .wheel {
             width: 100%;
             height: 100%;
@@ -36,8 +35,7 @@
                 #e67e22 300deg 360deg
             );
             box-shadow: 0 0 25px rgba(255, 117, 151, 0.4);
-            /* Упрощенная плавная анимация */
-            transition: transform 3s ease-out;
+            animation: spinContinuous 12s linear infinite;
         }
         .wheel-center {
             position: absolute;
@@ -57,70 +55,29 @@
         }
         .wheel-text {
             color: #181818;
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: bold;
-            line-height: 1.2;
+            line-height: 1.3;
+        }
+        /* CSS анимация бесконечного вращения */
+        @keyframes spinContinuous {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="wheel-container" id="spinArea">
-        <div class="wheel" id="wheelCircle"></div>
+    <div class="wheel-container">
+        <div class="wheel"></div>
         <div class="wheel-center">
-            <div class="wheel-text" id="centerText">Жми, чтобы<br>крутить! ❤️</div>
+            <div class="wheel-text">Время<br>свидания! ❤️</div>
         </div>
     </div>
 
-    <script>
-        // Инициализируем Telegram WebApp, если он есть
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.ready();
-            window.Telegram.WebApp.expand();
-        }
-
-        const wheel = document.getElementById('wheelCircle');
-        const centerText = document.getElementById('centerText');
-        const spinArea = document.getElementById('spinArea');
-
-        const options = [
-            "Приготовить ужин вместе", 
-            "Посмотреть фильм", 
-            "Массаж", 
-            "Прогулка в парке", 
-            "Заказать пиццу", 
-            "Настольные игры"
-        ];
-
-        let degrees = 0;
-        let canSpin = true;
-
-        function doRotation() {
-            if (!canSpin) return;
-            canSpin = false;
-
-            centerText.innerHTML = "Крутится...";
-
-            // Просто прибавляем случайные градусы (минимум 3 полных оборота)
-            const extraDegrees = Math.floor(Math.random() * 360) + 1080;
-            degrees += extraDegrees;
-            
-            // Вращаем колесо через CSS
-            wheel.style.transform = rotate(${degrees}deg);
-
-            // Через 3 секунды (когда анимация закончится) показываем случайный текст
-            setTimeout(() => {
-                const randomIndex = Math.floor(Math.random() * options.length);
-                centerText.innerHTML = options[randomIndex];
-                canSpin = true;
-            }, 3000);
-        }
-
-        // Привязываем запуск ко всем возможным видам нажатий
-        spinArea.onclick = doRotation;
-        spinArea.ontouchstart = function(e) {
-            doRotation();
-        };
-    </script>
 </body>
 </html>
