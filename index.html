@@ -1,92 +1,93 @@
-<DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Колесо свиданий</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Колесо</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: #181818;
-            color: #ffffff;
+            margin: 0;
+            padding: 0;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            margin: 0;
             overflow: hidden;
         }
-        h1 {
-            font-size: 1.4rem;
-            margin-bottom: 25px;
-            color: #ff7597;
-            text-align: center;
-            padding: 0 20px;
-        }
+        /* Контейнер строго по центру экрана */
         .wheel-container {
             position: relative;
-            width: 300px;
-            height: 300px;
-            margin-bottom: 40px;
+            width: 320px;
+            height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        canvas {
+        /* Яркое цветное колесо */
+        .wheel {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            box-shadow: 0 0 20px rgba(255, 117, 151, 0.3);
-        }
-        .arrow {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 25px solid #ff7597;
-            z-index: 10;
-        }
-        button {
-            background: #ff7597;
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 30px;
+            background: conic-gradient(
+                #ff7597 0deg 60deg,
+                #3498db 60deg 120deg,
+                #2ecc71 120deg 180deg,
+                #f1c40f 180deg 240deg,
+                #9b59b6 240deg 300deg,
+                #e67e22 300deg 360deg
+            );
+            box-shadow: 0 0 25px rgba(255, 117, 151, 0.4);
+            transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1);
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 117, 151, 0.4);
-            transition: transform 0.1s, background 0.2s;
         }
-        button:active {
-            transform: scale(0.95);
-            background: #e05376;
+        /* Белая сердцевина для текста */
+        .wheel-center {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            background: #ffffff;
+            border-radius: 50%;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+            pointer-events: none; /* Чтобы клик проходил сквозь центр на колесо */
+        }
+        .wheel-text {
+            color: #181818;
+            font-size: 0.9rem;
+            font-weight: bold;
+            line-height: 1.2;
         }
     </style>
 </head>
 <body>
 
-    <h1>Чем займемся сегодня? ❤️</h1>
-
     <div class="wheel-container">
-        <div class="arrow"></div>
-        <canvas id="wheel" width="600" height="600"></canvas>
+        <!-- Нажатие на этот круг запускает вращение -->
+        <div class="wheel" id="wheelCircle"></div>
+        
+        <!-- Центр с подсказкой/результатом -->
+        <div class="wheel-center">
+            <div class="wheel-text" id="centerText">Жми, чтобы<br>крутить! ❤️</div>
+        </div>
     </div>
-
-    <button id="spinBtn">Крутить колесо!</button>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
 
-        const canvas = document.getElementById('wheel');
-        const ctx = canvas.getContext('2d');
-        const spinBtn = document.getElementById('spinBtn');
+        const wheel = document.getElementById('wheelCircle');
+        const centerText = document.getElementById('centerText');
 
+        // Твои варианты для свидания
         const options = [
             "Приготовить ужин вместе", 
             "Посмотреть фильм", 
@@ -95,70 +96,33 @@
             "Заказать пиццу", 
             "Настольные игры"
         ];
-        
-        const colors = ["#ff7597", "#3498db", "#2ecc71", "#f1c40f", "#9b59b6", "#e67e22"];
-        
-        const numSectors = options.length;
-        const arc = 2 * Math.PI / numSectors;
-        let startAngle = 0;
+
+        let currentRotation = 0;
         let isSpinning = false;
 
-        // Рисуем колесо
-        function drawWheel() {
-            ctx.clearRect(0, 0, 600, 600);
-            for (let i = 0; i < numSectors; i++) {
-                const angle = startAngle + i * arc;
-                ctx.fillStyle = colors[i % colors.length];
-                
-                ctx.beginPath();
-                ctx.moveTo(300, 300);
-                ctx.arc(300, 300, 290, angle, angle + arc);
-                ctx.lineTo(300, 300);
-                ctx.fill();
-                ctx.strokeStyle = '#181818';
-                ctx.lineWidth = 4;
-                ctx.stroke();
-
-                // Текст на секторах
-                ctx.save();
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 20px sans-serif';
-                ctx.textBaseline = 'middle';
-                ctx.translate(300, 300);
-                ctx.rotate(angle + arc / 2);
-                ctx.fillText(options[i], 80, 0);
-                ctx.restore();
-            }
-        }
-
-        drawWheel();
-
-        // Логика вращения
-        spinBtn.
-[04.06.2026 14:43] 𝕯𝖆𝖘𝖍𝖆: addEventListener('click', () => {
+        wheel.addEventListener('click', () => {
             if (isSpinning) return;
             isSpinning = true;
 
-            const spinAngle = Math.random() * 2000 + 2000; // Случайная скорость и длительность
-            let currentRotation = 0;
+            centerText.innerHTML = "Крутится...";
+
+            // Крутим минимум на 5 полных оборотов + случайный градус
+            const randomDegrees = Math.floor(Math.random() * 360);
+            currentRotation += 1800 + randomDegrees;
             
-            const interval = setInterval(() => {
-                startAngle += 0.1;
-                currentRotation += 5;
-                drawWheel();
+            wheel.style.transform = rotate(${currentRotation}deg);
+
+            setTimeout(() => {
+                isSpinning = false;
                 
-                if (currentRotation >= spinAngle) {
-                    clearInterval(interval);
-                    isSpinning = false;
-                    
-                    // Вычисляем победителя
-                    const degrees = (startAngle * 180 / Math.PI) % 360;
-                    const index = Math.floor((360 - degrees) / (360 / numSectors)) % numSectors;
-                    
-                    // Показываем результат пользователю
-                    alert("Сегодня мы делаем: " + options[index]);
-                }
-            }, 10);
+                // Рассчитываем, какой сектор оказался вверху
+                const actualDegrees = currentRotation % 360;
+                const sectorDegrees = 360 / options.length;
+                const index = Math.floor(((360 - actualDegrees + 270) % 360) / sectorDegrees) % options.length;
+                
+                // Выводим результат прямо в центр колеса красивым текстом
+                centerText.innerHTML = options[index];
+            }, 4000); // Анимация длится 4 секунды
         });
     </script>
 </body>
