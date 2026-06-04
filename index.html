@@ -1,0 +1,73 @@
+import telebot
+from telebot.types import ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
+
+# Твой личный токен уже здесь!
+TOKEN = '7536967307:AAFCXd3oMcMzCNNC8QzEoHrRBblG7yD9DGo'
+
+# ⚠️ СЮДА ВСТАВЬ СВОЮ ССЫЛКУ, КОТОРУЮ СКОПИРОВАЛА НА ШАГЕ 1
+WEB_APP_URL = 'https://твой-ник.github.io/wheel/' 
+
+bot = telebot.TeleBot(TOKEN)
+
+def main_menu():
+    markup = ReplyKeyboardMarkup(resize_keyboard=True)
+    
+    # Создаем кнопку-приложение для колеса
+    web_app = WebAppInfo(url=WEB_APP_URL)
+    button_wheel = KeyboardButton(text="🎡 Крутить Колесо Свиданий", web_app=web_app)
+    
+    button_letter = KeyboardButton(text="💌 Прочитать послание")
+    button_coupons = KeyboardButton(text="🎟️ Купоны на желания")
+    
+    markup.row(button_wheel)
+    markup.row(button_letter, button_coupons)
+    return markup
+
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    welcome_text = (
+        "Привет, мой самый любимый! ❤️\n\n"
+        "Я создала этого бота специально для нас двоих. "
+        "Здесь ты можешь в любой момент открыть моё послание, посмотреть доступные купоны "
+        "или покрутить колесо, если мы никак не решим, чем заняться сегодня вечером. Пользуйся! ✨"
+    )
+    bot.send_message(message.chat.id, welcome_text, reply_markup=main_menu())
+
+@bot.message_handler(func=lambda message: True)
+def handle_menu(message):
+    if message.text == "💌 Прочитать послание":
+        letter = (
+            "❤️ **Моё послание тебе:**\n\n"
+            "Хочу напомнить тебе, как сильно я тебя люблю и как ценю каждое мгновение, проведённое вместе. "
+            "Ты — моя опора, мой самый близкий человек и лучший друг в одном лице.\n\n"
+            "Спасибо за твою заботу, за твои шутки, за то, как ты умеешь поднимать мне настроение, и просто за то, что ты есть. "
+            "С тобой даже самый обычный будний вечер становится уютным и особенным. Люблю тебя! ✨"
+        )
+        bot.send_message(message.chat.id, letter, parse_mode="Markdown")
+        
+    elif message.text == "🎟️ Купоны на желания":
+        coupons_text = (
+            "🎟️ **Твои активные купоны:**\n\n"
+            "Чтобы использовать, просто сделай скриншот и пришли мне в личные сообщения! 😉\n\n"
+            "1️⃣ Купон на массаж 💆‍♂️ — 30 минут полного расслабления.\n"
+            "2️⃣ Твой выбор фильма 🍿 — смотрим что угодно, я не ворчу и не засыпаю.\n"
+            "3️⃣ Законный чилл-тайм 🛋️ — освобождение от любых бытовых дел на весь день.\n"
+            "4️⃣ Кулинарный каприз 🥞 — приготовлю твое любимое блюдо или вкусный коктейль по первому требованию."
+        )
+        bot.send_message(message.chat.id, coupons_text, parse_mode="Markdown")
+
+# Логика, которая принимает ответ от закрывшегося колеса
+@bot.message_handler(content_types=['web_app_data'])
+def handle_web_app_data(message):
+    activity_selected = message.web_app_data.data
+    
+    response = (
+        f"🎉 **Колесо сделало свой выбор!**\n\n"
+        f"✨ Наш план на сегодня: {activity_selected} ✨\n\n"
+        f"Ну что, отказываться нельзя, погнали? 😉"
+    )
+    bot.send_message(message.chat.id, response, parse_mode="Markdown")
+
+if name == '__main__':
+    print("Бот успешно запущен и ждет твоего любимого... ❤️")
+    bot.infinity_polling()
