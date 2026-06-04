@@ -15,13 +15,16 @@
             justify-content: center;
             height: 100vh;
             overflow: hidden;
+            -webkit-user-select: none;
+            user-select: none;
         }
         .wheel-container {
             position: relative;
             width: 320px;
             height: 320px;
+            cursor: pointer;
         }
-        /* Колесо крутится само бесконечно и плавно */
+        /* Колесо крутится само по себе */
         .wheel {
             width: 100%;
             height: 100%;
@@ -35,7 +38,11 @@
                 #e67e22 300deg 360deg
             );
             box-shadow: 0 0 25px rgba(255, 117, 151, 0.4);
-            animation: spinContinuous 12s linear infinite;
+            animation: spinContinuous 8s linear infinite;
+        }
+        /* Этот класс будет останавливать колесо при клике */
+        .stop {
+            animation-play-state: paused !important;
         }
         .wheel-center {
             position: absolute;
@@ -55,29 +62,70 @@
         }
         .wheel-text {
             color: #181818;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: bold;
             line-height: 1.3;
         }
-        /* CSS анимация бесконечного вращения */
         @keyframes spinContinuous {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
 
-    <div class="wheel-container">
-        <div class="wheel"></div>
+    <div class="wheel-container" id="mainButton">
+        <div class="wheel" id="wheelCircle"></div>
         <div class="wheel-center">
-            <div class="wheel-text">Время<br>свидания! ❤️</div>
+            <div class="wheel-text" id="centerText">Нажми,<br>чтобы стоп! ❤️</div>
         </div>
     </div>
 
+    <script>
+        // Подключаем Telegram WebApp
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+        }
+
+        const wheel = document.getElementById('wheelCircle');
+        const centerText = document.getElementById('centerText');
+        const mainButton = document.getElementById('mainButton');
+
+        // Твои варианты занятий
+        const options = [
+            "Приготовить ужин вместе 🍳", 
+            "Посмотреть фильм 🍿", 
+            "Массаж 💆‍♂️", 
+            "Прогулка в парке 🌳", 
+            "Заказать пиццу 🍕", 
+            "Настольные игры 🎲"
+        ];
+
+        let isStopped = false;
+
+        function handleStop() {
+            // Если уже остановили, второй клик снова запускает колесо
+            if (isStopped) {
+                wheel.classList.remove('stop');
+                centerText.innerHTML = "Нажми,<br>чтобы стоп! ❤️";
+                isStopped = false;
+            } else {
+                // Останавливаем вращение CSS
+                wheel.classList.add('stop');
+                // Выбираем случайный вариант
+                const randomIndex = Math.floor(Math.random() * options.length);
+                centerText.innerHTML = options[randomIndex];
+                isStopped = true;
+            }
+        }
+
+        // Реагирует и на клики мышкой, и на тапы пальцем на смартфонах
+        mainButton.onclick = handleStop;
+        mainButton.ontouchstart = function(e) {
+            e.preventDefault();
+            handleStop();
+        };
+    </script>
 </body>
 </html>
