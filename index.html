@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Колесо</title>
+    <title>Колесо Свиданий</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
@@ -16,8 +16,9 @@
             justify-content: center;
             height: 100vh;
             overflow: hidden;
+            -webkit-user-select: none;
+            user-select: none;
         }
-        /* Контейнер строго по центру экрана */
         .wheel-container {
             position: relative;
             width: 320px;
@@ -26,7 +27,6 @@
             align-items: center;
             justify-content: center;
         }
-        /* Яркое цветное колесо */
         .wheel {
             width: 100%;
             height: 100%;
@@ -41,9 +41,7 @@
             );
             box-shadow: 0 0 25px rgba(255, 117, 151, 0.4);
             transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1);
-            cursor: pointer;
         }
-        /* Белая сердцевина для текста */
         .wheel-center {
             position: absolute;
             width: 140px;
@@ -57,7 +55,6 @@
             text-align: center;
             padding: 10px;
             box-sizing: border-box;
-            pointer-events: none; /* Чтобы клик проходил сквозь центр на колесо */
         }
         .wheel-text {
             color: #181818;
@@ -69,25 +66,25 @@
 </head>
 <body>
 
-    <div class="wheel-container">
-        <!-- Нажатие на этот круг запускает вращение -->
+    <div class="wheel-container" id="mainContainer">
         <div class="wheel" id="wheelCircle"></div>
-        
-        <!-- Центр с подсказкой/результатом -->
         <div class="wheel-center">
             <div class="wheel-text" id="centerText">Жми, чтобы<br>крутить! ❤️</div>
         </div>
     </div>
 
     <script>
+        // Инициализация Telegram WebApp
         const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
 
         const wheel = document.getElementById('wheelCircle');
         const centerText = document.getElementById('centerText');
+        const container = document.getElementById('mainContainer');
 
-        // Твои варианты для свидания
         const options = [
             "Приготовить ужин вместе", 
             "Посмотреть фильм", 
@@ -100,13 +97,13 @@
         let currentRotation = 0;
         let isSpinning = false;
 
-        wheel.addEventListener('click', () => {
+        // Главная функция вращения
+        function startSpin() {
             if (isSpinning) return;
             isSpinning = true;
 
             centerText.innerHTML = "Крутится...";
 
-            // Крутим минимум на 5 полных оборотов + случайный градус
             const randomDegrees = Math.floor(Math.random() * 360);
             currentRotation += 1800 + randomDegrees;
             
@@ -115,15 +112,20 @@
             setTimeout(() => {
                 isSpinning = false;
                 
-                // Рассчитываем, какой сектор оказался вверху
                 const actualDegrees = currentRotation % 360;
                 const sectorDegrees = 360 / options.length;
                 const index = Math.floor(((360 - actualDegrees + 270) % 360) / sectorDegrees) % options.length;
                 
-                // Выводим результат прямо в центр колеса красивым текстом
                 centerText.innerHTML = options[index];
-            }, 4000); // Анимация длится 4 секунды
-        });
+            }, 4000);
+        }
+
+         // Слушаем и обычные клики, и мобильные касания тачскрина для 100% срабатывания
+        container.addEventListener('click', startSpin);
+        container.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Защита от двойных тапов на iPhone
+            startSpin();
+        }, { passive: false });
     </script>
 </body>
 </html>
